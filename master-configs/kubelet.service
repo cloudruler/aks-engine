@@ -1,0 +1,15 @@
+[Unit]
+Description=Kubelet
+ConditionPathExists=/usr/local/bin/kubelet
+Requires=docker.service
+
+[Service]
+Restart=always
+EnvironmentFile=/etc/default/kubelet
+SuccessExitStatus=143
+ExecStartPre=/bin/bash /opt/azure/containers/kubelet.sh
+ExecStart=/usr/local/bin/kubelet \
+        --node-labels="${KUBELET_NODE_LABELS}" \
+        $KUBELET_CONFIG
+[Install]
+WantedBy=multi-user.target

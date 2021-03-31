@@ -1,0 +1,177 @@
+#cloud-config
+
+write_files:
+- path: /opt/azure/needs_azure.json
+  permissions: \"0644\"
+  owner: root
+  content: |
+    #EOF
+
+
+- path: /opt/azure/containers/provision_source.sh
+  permissions: \"0744\"
+  encoding: gzip
+  owner: root
+  content: !!binary |
+    ',variables('cloudInitFiles').provisionSource,'
+
+- path: /opt/azure/containers/provision.sh
+  permissions: \"0744\"
+  encoding: gzip
+  owner: root
+  content: !!binary |
+    ',variables('cloudInitFiles').provisionScript,'
+
+- path: /opt/azure/containers/provision_installs.sh
+  permissions: \"0744\"
+  encoding: gzip
+  owner: root
+  content: !!binary |
+    ',variables('cloudInitFiles').provisionInstalls,'
+
+- path: /opt/azure/containers/provision_configs.sh
+  permissions: \"0744\"
+  encoding: gzip
+  owner: root
+  content: !!binary |
+    ',variables('cloudInitFiles').provisionConfigs,'
+
+- path: /etc/systemd/system/kubelet-monitor.service
+  permissions: \"0644\"
+  encoding: gzip
+  owner: root
+  content: !!binary |
+    ',variables('cloudInitFiles').kubeletMonitorSystemdService,'
+- path: /usr/local/bin/health-monitor.sh
+  permissions: \"0544\"
+  encoding: gzip
+  owner: root
+  content: !!binary |
+    ',variables('cloudInitFiles').healthMonitorScript,'
+
+- path: /etc/systemd/system/kubelet.service
+  permissions: \"0644\"
+  encoding: gzip
+  owner: root
+  content: !!binary |
+    ',variables('cloudInitFiles').kubeletSystemdService,'
+- path: /etc/systemd/system/docker-monitor.service
+  permissions: \"0644\"
+  encoding: gzip
+  owner: root
+  content: !!binary |
+    ',variables('cloudInitFiles').dockerMonitorSystemdService,'
+
+- path: /etc/apt/apt.conf.d/99periodic
+  permissions: \"0644\"
+  owner: root
+  content: |
+    APT::Periodic::Update-Package-Lists \"0\";
+    APT::Periodic::Download-Upgradeable-Packages \"0\";
+    APT::Periodic::AutocleanInterval \"0\";
+    APT::Periodic::Unattended-Upgrade \"0\";
+
+- path: /etc/systemd/system/docker.service.d/exec_start.conf
+  permissions: \"0644\"
+  owner: root
+  content: |
+    [Service]
+    Restart=always
+    ExecStart=
+    ExecStart=/usr/bin/dockerd -H fd:// --storage-driver=overlay2 --bip=',parameters('dockerBridgeCidr'),'
+    ExecStartPost=/sbin/iptables -P FORWARD ACCEPT
+    #EOF
+
+- path: /etc/docker/daemon.json
+  permissions: \"0644\"
+  owner: root
+  content: |
+    {
+        \"live-restore\": true,
+        \"log-driver\": \"json-file\",
+        \"log-opts\": {
+            \"max-size\": \"50m\",
+            \"max-file\": \"5\"
+        }
+    }
+
+
+
+- path: /etc/sysctl.d/11-aks-engine.conf
+  permissions: \"0644\"
+  owner: root
+  content: |
+    net.core.message_burst = 80
+    net.core.message_cost = 40
+    net.core.somaxconn = 16384
+    net.ipv4.neigh.default.gc_thresh1 = 4096
+    net.ipv4.neigh.default.gc_thresh2 = 8192
+    net.ipv4.neigh.default.gc_thresh3 = 16384
+    net.ipv4.tcp_max_syn_backlog = 16384
+    net.ipv4.tcp_retries2 = 8
+    #EOF
+
+- path: /etc/kubernetes/certs/ca.crt
+  permissions: \"0644\"
+  encoding: base64
+  owner: root
+  content: |
+    ',parameters('caCertificate'),'
+
+- path: /etc/kubernetes/certs/client.crt
+  permissions: \"0644\"
+  encoding: base64
+  owner: root
+  content: |
+    ',parameters('clientCertificate'),'
+
+- path: /var/lib/kubelet/kubeconfig
+  permissions: \"0644\"
+  owner: root
+  content: |
+    apiVersion: v1
+    kind: Config
+    clusters:
+    - name: localcluster
+      cluster:
+        certificate-authority: /etc/kubernetes/certs/ca.crt
+        server: https://',variables('kubernetesAPIServerIP'),':443
+    users:
+    - name: client
+      user:
+        client-certificate: /etc/kubernetes/certs/client.crt
+        client-key: /etc/kubernetes/certs/client.key
+    contexts:
+    - context:
+        cluster: localcluster
+        user: client
+      name: localclustercontext
+    current-context: localclustercontext
+    #EOF
+
+- path: /etc/default/kubelet
+  permissions: \"0644\"
+  owner: root
+  content: |
+    KUBELET_CONFIG=--address=0.0.0.0 --anonymous-auth=false --authentication-token-webhook=true --authorization-mode=Webhook --azure-container-registry-config=/etc/kubernetes/azure.json --cgroups-per-qos=true --client-ca-file=/etc/kubernetes/certs/ca.crt --cloud-config=/etc/kubernetes/azure.json --cloud-provider=azure --cluster-dns=10.0.0.10 --cluster-domain=cluster.local --enforce-node-allocatable=pods --event-qps=0 --eviction-hard=memory.available<750Mi,nodefs.available<10%,nodefs.inodesFree<5% --feature-gates=RotateKubeletServerCertificate=true --healthz-port=10248 --image-gc-high-threshold=85 --image-gc-low-threshold=80 --image-pull-progress-deadline=30m --keep-terminated-pod-volumes=false --kubeconfig=/var/lib/kubelet/kubeconfig --max-pods=30 --network-plugin=cni --node-status-update-frequency=10s --non-masquerade-cidr=0.0.0.0/0 --pod-infra-container-image=mcr.microsoft.com/oss/kubernetes/pause:1.4.1 --pod-manifest-path=/etc/kubernetes/manifests --pod-max-pids=-1 --protect-kernel-defaults=true --read-only-port=0 --resolv-conf=/run/systemd/resolve/resolv.conf --rotate-certificates=true --streaming-connection-idle-timeout=4h --tls-cert-file=/etc/kubernetes/certs/kubeletserver.crt --tls-cipher-suites=TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_GCM_SHA256 --tls-private-key-file=/etc/kubernetes/certs/kubeletserver.key --v=2 --volume-plugin-dir=/etc/kubernetes/volumeplugins 
+    KUBELET_NODE_LABELS=kubernetes.azure.com/role=agent,agentpool=agentpool1,storageprofile=managed,storagetier=Standard_LRS,kubernetes.azure.com/cluster=',variables('labelResourceGroup'),'
+    #EOF
+
+- path: /opt/azure/containers/kubelet.sh
+  permissions: \"0755\"
+  owner: root
+  content: |
+    #!/bin/bash
+    MOUNT_DIR=/var/lib/kubelet
+    mkdir -p $MOUNT_DIR /var/lib/cni
+    if ! [[ $(findmnt -rno SOURCE,TARGET ${MOUNT_DIR}) ]]; then
+      mount --bind $MOUNT_DIR $MOUNT_DIR
+    fi
+    mount --make-shared $MOUNT_DIR
+    iptables -I FORWARD -d 168.63.129.16 -p tcp --dport 80 -j DROP
+    #EOF
+runcmd:
+- set -x
+- source /opt/azure/containers/provision_source.sh
+- aptmarkWALinuxAgent hold
+
