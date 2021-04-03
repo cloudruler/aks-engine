@@ -1,20 +1,45 @@
 # Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+Deploy aks-engine to Azure
 
-# Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/opt/azure/containers/provision_source.sh ./provision_source.sh
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/opt/azure/containers/provision.sh ./provision.sh
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/opt/azure/containers/provision_installs.sh ./provision_installs.sh
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/opt/azure/containers/provision_configs.sh ./provision_configs.sh
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/usr/local/bin/health-monitor.sh ./health-monitor.sh
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/etc/systemd/system/etcd-monitor.service ./etcd-monitor.service
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/etc/systemd/system/kubelet.service ./kubelet.service
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/etc/systemd/system/docker-monitor.service ./docker-monitor.service
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/etc/kubernetes/manifests/kube-addon-manager.yaml ./kube-addon-manager.yaml
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/etc/kubernetes/manifests/kube-apiserver.yaml ./kube-apiserver.yaml
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/etc/kubernetes/manifests/kube-controller-manager.yaml ./kube-controller-manager.yaml
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/etc/kubernetes/manifests/kube-scheduler.yaml ./kube-scheduler.yaml
 
-# Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+#Upload
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" C:\Users\brian\.ssh\id_rsa cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:~/.ssh/
+#SSH in
+ssh -i ~/.ssh/id_rsa cloudruleradmin@10.240.0.4
+chmod 700 ~/.ssh/id_rsa
 
-# Contribute
-TODO: Explain how other users and developers can contribute to make your code better. 
+Download from worker to master
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@10.240.0.4:/opt/azure/containers/provision_source.sh ./provision_source.sh
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@10.240.0.4:/opt/azure/containers/provision.sh ./provision.sh
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@10.240.0.4:/opt/azure/containers/provision_installs.sh ./provision_installs.sh
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@10.240.0.4:/opt/azure/containers/provision_configs.sh ./provision_configs.sh
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@10.240.0.4:/etc/systemd/system/kubelet-monitor.service ./kubelet-monitor.service
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@10.240.0.4:/usr/local/bin/health-monitor.sh ./health-monitor.sh
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@10.240.0.4:/etc/systemd/system/kubelet.service ./kubelet.service
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@10.240.0.4:/etc/systemd/system/docker-monitor.service ./docker-monitor.service
 
-If you want to learn more about creating good readme files then refer the following [guidelines](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-a-readme?view=azure-devops). You can also seek inspiration from the below readme files:
-- [ASP.NET Core](https://github.com/aspnet/Home)
-- [Visual Studio Code](https://github.com/Microsoft/vscode)
-- [Chakra Core](https://github.com/Microsoft/ChakraCore)
+Dwonload from master to local laptop
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/opt/azure/containers/provision_source.sh ./provision_source.sh
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/opt/azure/containers/provision.sh ./provision.sh
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/opt/azure/containers/provision_installs.sh ./provision_installs.sh
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/opt/azure/containers/provision_configs.sh ./provision_configs.sh
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/etc/systemd/system/kubelet-monitor.service ./kubelet-monitor.service
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/usr/local/bin/health-monitor.sh ./health-monitor.sh
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/etc/systemd/system/kubelet.service ./kubelet.service
+scp -i ~/.ssh/id_rsa -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@cloudruleraksengine.southcentralus.cloudapp.azure.com:/etc/systemd/system/docker-monitor.service ./docker-monitor.service
+
+
+
+az deployment group create --name "aksengine" --resource-group "aksengine" --template-file "./_output/cloudruleraksengine/azuredeploy.json" --parameters "./_output/cloudruleraksengine/azuredeploy.parameters.json"
