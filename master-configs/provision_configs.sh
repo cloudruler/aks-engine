@@ -146,6 +146,8 @@ configureKubeletServerCert() {
   openssl genrsa -out $kubeletserver_key 2048
   openssl req -new -x509 -days 7300 -key $kubeletserver_key -out $kubeletserver_crt -subj "/CN=${NODE_NAME}"
 }
+#create /etc/kubernetes/azure.json
+
 configureK8s() {
   local client_key="/etc/kubernetes/certs/client.key" apiserver_crt="/etc/kubernetes/certs/apiserver.crt" azure_json="/etc/kubernetes/azure.json"
   touch "${client_key}"
@@ -233,12 +235,9 @@ EOF
 #untar into CNI_BIN_DIR "/opt/cni/bin"
 #remove temp downloads
 
-
-
 #CNI_CONFIG_DIR="/etc/cni/net.d"
 #CNI_BIN_DIR="/opt/cni/bin"
 #CNI_DOWNLOADS_DIR="/opt/cni/downloads"
-
 
 #move $CNI_CONFIG_DIR/10-azure.conflist into $CNI_CONFIG_DIR
 #if iptables == ipvs, configure the service CIDRS in 10-azure.conflist
