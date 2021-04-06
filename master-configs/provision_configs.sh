@@ -222,6 +222,28 @@ EOF
     sed -i "/cloudProviderBackoffJitter/d" $azure_json
   fi
 }
+#download VNET_CNI_PLUGINS_URL https://kubernetesartifacts.azureedge.net/azure-cni/v1.2.2/binaries/azure-vnet-cni-linux-amd64-v1.2.2.tgz
+#make directory CNI_CONFIG_DIR "/etc/cni/net.d"
+#owner root:root 755
+#make directory CNI_BIN_DIR "/opt/cni/bin"
+#untar into CNI_BIN_DIR "/opt/cni/bin"
+
+#download CNI_PLUGINS_URL https://kubernetesartifacts.azureedge.net/cni-plugins/v0.9.1/binaries/cni-plugins-linux-amd64-v0.9.1.tgz
+#chown root:root 755 CNI_BIN_DIR "/opt/cni/bin"
+#untar into CNI_BIN_DIR "/opt/cni/bin"
+#remove temp downloads
+
+
+
+#CNI_CONFIG_DIR="/etc/cni/net.d"
+#CNI_BIN_DIR="/opt/cni/bin"
+#CNI_DOWNLOADS_DIR="/opt/cni/downloads"
+
+
+#move $CNI_CONFIG_DIR/10-azure.conflist into $CNI_CONFIG_DIR
+#if iptables == ipvs, configure the service CIDRS in 10-azure.conflist
+#if network mode is bridge, set .plugins[0].mode="bridge" and .plugins[0].bridge="azure0" in 10-azure.conflist
+#else set .plugins[0].mode="transparent" in 10-azure.conflist
 
 installNetworkPlugin() {
   installAzureCNI
@@ -258,6 +280,7 @@ configureCNI() {
   configureAzureCNI
   
 }
+
 configureAzureCNI() {
   local tmpDir=$(mktemp -d "$(pwd)/XXX")
   if [[ "${NETWORK_PLUGIN}" == "azure" ]]; then

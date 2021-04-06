@@ -1,12 +1,15 @@
 #!/bin/bash
 
+#Try to find the OS Name
 OS=$(sort -r /etc/*-release | gawk 'match($0, /^(ID=(.*))$/, a) { print toupper(a[2] a[3]); exit }')
 UBUNTU_OS_NAME="UBUNTU"
 FLATCAR_OS_NAME="FLATCAR"
 DEBIAN_OS_NAME="DEBIAN"
+#If we couldnt find the OS name
 if ! echo "${UBUNTU_OS_NAME} ${FLATCAR_OS_NAME} ${DEBIAN_OS_NAME}" | grep -q "${OS}"; then
   OS=$(sort -r /etc/*-release | gawk 'match($0, /^(ID_LIKE=(.*))$/, a) { print toupper(a[2] a[3]); exit }')
 fi
+#If its ubuntu
 if [[ ${OS} == "${UBUNTU_OS_NAME}" ]]; then
   UBUNTU_RELEASE=$(lsb_release -r -s)
 fi
@@ -22,6 +25,7 @@ DOCKER_VERSION=1.13.1-1
 NVIDIA_CONTAINER_RUNTIME_VER=2.0.0
 NVIDIA_DOCKER_SUFFIX=docker18.09.2-1
 PRIVATE_IP=$( (ip -br -4 addr show eth0 || ip -br -4 addr show azure0) | grep -Po '\d+\.\d+\.\d+\.\d+')
+#If we couldnt find the private IP
 if ! [[ $(echo -n "$PRIVATE_IP" | grep -c '^') == 1 ]]; then
   PRIVATE_IP=$(hostname -i)
 fi
@@ -48,7 +52,7 @@ aptmarkWALinuxAgent() {
       exit 8
     fi
 }
-
+#Run a command with a timeout
 retrycmd() {
   retries=$1; wait_sleep=$2; timeout=$3; shift && shift && shift
   for i in $(seq 1 $retries); do
