@@ -4,9 +4,13 @@ Deploy aks-engine to Azure
 #From laptop, SSH to master
 MASTER_NODE_NAME=cloudruleraksengine.southcentralus.cloudapp.azure.com
 SSH_KEY_NAME=cloudruleradmin
-ssh -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@$MASTER_NODE_NAME
 
-From laptop, download from master
+ssh -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@$MASTER_NODE_NAME
+sudo chmod 604 /var/lib/cloud/instance/user-data.txt
+
+#From laptop, download from master
+scp -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@$MASTER_NODE_NAME:/var/lib/cloud/instance/user-data.txt ./cloud-config.yml
+
 scp -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@$MASTER_NODE_NAME:/opt/azure/containers/provision_source.sh ./provision_source.sh
 scp -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@$MASTER_NODE_NAME:/opt/azure/containers/provision.sh ./provision.sh
 scp -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@$MASTER_NODE_NAME:/opt/azure/containers/provision_installs.sh ./provision_installs.sh
@@ -40,18 +44,25 @@ scp -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyC
 #Upload SSH key to master
 scp -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" ~/.ssh/$SSH_KEY_NAME cloudruleradmin@$MASTER_NODE_NAME:~/.ssh/
 
+#Now SSH into master
 ssh -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@$MASTER_NODE_NAME
 
 #While logged into master, SSH in to worker
 WORKER_NODE_IP=10.240.0.34
 SSH_KEY_NAME=cloudruleradmin
 chmod 700 ~/.ssh/$SSH_KEY_NAME
+
+mkdir worker-configs
+cd worker-configs
+
 ssh -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@$WORKER_NODE_IP
 
 While logged into master, download from worker to master
 
-mkdir worker-configs
-cd worker-configs
+
+
+sudo chmod 604 /var/lib/cloud/instance/user-data.txt
+scp -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@$WORKER_NODE_IP:/var/lib/cloud/instance/user-data.txt ./cloud-config.yml
 
 scp -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@$WORKER_NODE_IP:/opt/azure/containers/provision_source.sh ./provision_source.sh
 scp -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@$WORKER_NODE_IP:/opt/azure/containers/provision.sh ./provision.sh
@@ -63,6 +74,9 @@ scp -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyC
 scp -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@$WORKER_NODE_IP:/etc/systemd/system/docker-monitor.service ./docker-monitor.service
 
 Dwonload from master to local laptop
+scp -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@$MASTER_NODE_NAME:~/worker-configs/cloud-config.yml ./cloud-config.yml
+
+
 scp -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@$MASTER_NODE_NAME:~/worker-configs/provision_source.sh ./provision_source.sh
 scp -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@$MASTER_NODE_NAME:~/worker-configs/provision.sh ./provision.sh
 scp -i ~/.ssh/$SSH_KEY_NAME -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" cloudruleradmin@$MASTER_NODE_NAME:~/worker-configs/provision_installs.sh ./provision_installs.sh
